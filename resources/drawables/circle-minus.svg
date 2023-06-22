@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#AAAAAA;}
+</style>
+<path class="st0" d="M256,512c141.4,0,256-114.6,256-256S397.4,0,256,0S0,114.6,0,256S114.6,512,256,512z M112,208h288
+	c26.6,0,48,21.4,48,48c0,26.6-21.4,48-48,48H112c-26.6,0-48-21.4-48-48S85.4,208,112,208z"/>
+</svg>

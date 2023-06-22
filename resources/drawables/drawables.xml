@@ -1,0 +1,7 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+    <bitmap id="bluetoothIcon" filename="bluetooth.svg" x="center" y="center" scaleX="3%" scaleY="3%" />
+    <bitmap id="dndIcon" filename="circle-minus.svg" x="center" y="center" scaleX="3%" scaleY="3%" />
+    <bitmap id="rainIcon" filename="cloud-rain.svg" x="center" y="center" scaleX="3%" scaleY="3%" />
+    <bitmap id="spo2Icon" filename="droplet-percent.svg" x="center" y="center" scaleX="3.5%" scaleY="3.5%" />
+</drawables>

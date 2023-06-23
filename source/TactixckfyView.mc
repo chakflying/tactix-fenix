@@ -278,10 +278,20 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     var currentWindString = "----";
     if (currentWeather != null) {
-      currentWindString = Lang.format("$1$ $2$", [
-        (currentWeather.windSpeed * 3.6).format("%.0f"),
-        bearingToDirection(currentWeather.windBearing),
-      ]);
+      if (
+        currentWeather.windSpeed != null &&
+        currentWeather.windBearing != null
+      ) {
+        if (currentWeather.windSpeed < 0.5) {
+          currentWindString = "CALM";
+        } else {
+          currentWindString = Lang.format("$1$ $2$", [
+            (currentWeather.windSpeed * 3.6).format("%.0f"),
+            bearingToDirection(currentWeather.windBearing),
+          ]);
+        }
+      }
+
       var dataLabel = View.findDrawableById("topRightDataLabel") as Text;
       dataLabel.setText(currentWindString);
     }
@@ -548,11 +558,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     // Map out the coordinates of the watch hand pointing down
     var coords =
       [
-        [-(12 / 2), -40] as Array<Number>,
-        [-(20 / 2), -70] as Array<Number>,
-        [0, -93] as Array<Number>,
-        [20 / 2, -70] as Array<Number>,
-        [12 / 2, -40] as Array<Number>,
+        [-(12 / 2), -35] as Array<Number>,
+        [-(22 / 2), -65] as Array<Number>,
+        [0, -95] as Array<Number>,
+        [22 / 2, -65] as Array<Number>,
+        [12 / 2, -35] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);

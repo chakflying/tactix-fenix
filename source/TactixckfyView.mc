@@ -82,6 +82,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   // loading resources into memory.
   function onShow() as Void {
     subscribeComplications();
+    View.onShow();
   }
 
   // Update the view
@@ -106,6 +107,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   // memory.
   function onHide() as Void {
     unsubscribeComplications();
+    View.onHide();
   }
 
   // The user has just looked at their watch. Timers and animations may be started here.
@@ -458,8 +460,10 @@ class TactixckfyView extends WatchUi.WatchFace {
       var nextSunriseAngle =
         (nextSunrise.toFloat() / (60 * 60 * 12)) * Math.PI * 2;
 
+      dc.setColor(0x0055AA, Graphics.COLOR_BLACK);
+      dc.fillPolygon(getLeftTriangleMarker(_screenCenterPoint, nextSunriseAngle));
       dc.setColor(0xffaaaa, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getTriangleMarker(_screenCenterPoint, nextSunriseAngle));
+      dc.fillPolygon(getRightTriangleMarker(_screenCenterPoint, nextSunriseAngle));
     }
 
     if (nextSunset != null) {
@@ -467,7 +471,9 @@ class TactixckfyView extends WatchUi.WatchFace {
         (nextSunset.toFloat() / (60 * 60 * 12)) * Math.PI * 2;
 
       dc.setColor(0xff5500, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getTriangleMarker(_screenCenterPoint, nextSunsetAngle));
+      dc.fillPolygon(getLeftTriangleMarker(_screenCenterPoint, nextSunsetAngle));
+      dc.setColor(0x0055AA, Graphics.COLOR_BLACK);
+      dc.fillPolygon(getRightTriangleMarker(_screenCenterPoint, nextSunsetAngle));
     }
   }
 
@@ -550,15 +556,29 @@ class TactixckfyView extends WatchUi.WatchFace {
     return rotatePoints(centerPoint, coords, angle);
   }
 
-  private function getTriangleMarker(
+  private function getLeftTriangleMarker(
     centerPoint as Array<Number>,
     angle as Float
   ) as Array<Array<Float> > {
     var coords =
       [
-        [-(14 / 2), -113] as Array<Number>,
+        [-(16 / 2), -113] as Array<Number>,
         [0, -130] as Array<Number>,
-        [14 / 2, -113] as Array<Number>,
+        [0, -113] as Array<Number>,
+      ] as Array<Array<Number> >;
+
+    return rotatePoints(centerPoint, coords, angle);
+  }
+
+  private function getRightTriangleMarker(
+    centerPoint as Array<Number>,
+    angle as Float
+  ) as Array<Array<Float> > {
+    var coords =
+      [
+        [0, -113] as Array<Number>,
+        [0, -130] as Array<Number>,
+        [16 / 2, -113] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);

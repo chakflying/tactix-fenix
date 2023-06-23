@@ -460,10 +460,14 @@ class TactixckfyView extends WatchUi.WatchFace {
       var nextSunriseAngle =
         (nextSunrise.toFloat() / (60 * 60 * 12)) * Math.PI * 2;
 
-      dc.setColor(0x0055AA, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getLeftTriangleMarker(_screenCenterPoint, nextSunriseAngle));
+      dc.setColor(0x0055aa, Graphics.COLOR_BLACK);
+      dc.fillPolygon(
+        getLeftTriangleMarker(_screenCenterPoint, nextSunriseAngle)
+      );
       dc.setColor(0xffaaaa, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getRightTriangleMarker(_screenCenterPoint, nextSunriseAngle));
+      dc.fillPolygon(
+        getRightTriangleMarker(_screenCenterPoint, nextSunriseAngle)
+      );
     }
 
     if (nextSunset != null) {
@@ -471,9 +475,13 @@ class TactixckfyView extends WatchUi.WatchFace {
         (nextSunset.toFloat() / (60 * 60 * 12)) * Math.PI * 2;
 
       dc.setColor(0xff5500, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getLeftTriangleMarker(_screenCenterPoint, nextSunsetAngle));
-      dc.setColor(0x0055AA, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getRightTriangleMarker(_screenCenterPoint, nextSunsetAngle));
+      dc.fillPolygon(
+        getLeftTriangleMarker(_screenCenterPoint, nextSunsetAngle)
+      );
+      dc.setColor(0x0055aa, Graphics.COLOR_BLACK);
+      dc.fillPolygon(
+        getRightTriangleMarker(_screenCenterPoint, nextSunsetAngle)
+      );
     }
   }
 
@@ -489,10 +497,38 @@ class TactixckfyView extends WatchUi.WatchFace {
 
       var minuteHandAngle = (clockTime.min / 60.0) * Math.PI * 2;
 
+      var hourHandPoints = getHourHandPoints(_screenCenterPoint, hourHandAngle);
+
+      var minuteHandPoints = getMinuteHandPoints(
+        _screenCenterPoint,
+        minuteHandAngle
+      );
+
+      dc.setPenWidth(3);
       dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-      dc.fillPolygon(getHourHandPoints(_screenCenterPoint, hourHandAngle));
-      dc.fillPolygon(getMinuteHandPoints(_screenCenterPoint, minuteHandAngle));
+      dc.fillPolygon(hourHandPoints);
+      dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+      drawPolygon(dc, hourHandPoints);
+
+      dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+      dc.fillPolygon(minuteHandPoints);
+      dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+      drawPolygon(dc, minuteHandPoints);
     }
+  }
+
+  private function drawPolygon(dc as Dc, points as Array<Array<Float> >) {
+    dc.setAntiAlias(true);
+    var i;
+    for (i = 1; i < points.size(); i++) {
+      dc.drawLine(
+        points[i - 1][0],
+        points[i - 1][1],
+        points[i][0],
+        points[i][1]
+      );
+    }
+    dc.drawLine(points[i - 1][0], points[i - 1][1], points[0][0], points[0][1]);
   }
 
   private function drawSecondHand(dc as Dc) as Void {
@@ -512,11 +548,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     // Map out the coordinates of the watch hand pointing down
     var coords =
       [
-        [-(10 / 2), -40] as Array<Number>,
-        [-(18 / 2), -70] as Array<Number>,
+        [-(12 / 2), -40] as Array<Number>,
+        [-(20 / 2), -70] as Array<Number>,
         [0, -93] as Array<Number>,
-        [18 / 2, -70] as Array<Number>,
-        [10 / 2, -40] as Array<Number>,
+        [20 / 2, -70] as Array<Number>,
+        [12 / 2, -40] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);
@@ -529,11 +565,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     // Map out the coordinates of the watch hand pointing down
     var coords =
       [
-        [-(10 / 2), -45] as Array<Number>,
-        [-(10 / 2), -115] as Array<Number>,
+        [-(12 / 2), -45] as Array<Number>,
+        [-(12 / 2), -115] as Array<Number>,
         [0, -125] as Array<Number>,
-        [10 / 2, -115] as Array<Number>,
-        [10 / 2, -45] as Array<Number>,
+        [12 / 2, -115] as Array<Number>,
+        [12 / 2, -45] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);

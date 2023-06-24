@@ -16,4 +16,8 @@
     <string id="ColorBlue">Blue</string>
     <string id="ColorRed">Red</string>
 
+    <string id="TopLeftDataTitle">Top Left Data</string>
+    <string id="MoonPhase">Moon Phase</string>
+    <string id="Baro">Barometer (Sea Level)</string>
+
 </strings>

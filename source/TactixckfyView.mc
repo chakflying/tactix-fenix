@@ -10,6 +10,7 @@ import Toybox.Weather;
 class TactixckfyView extends WatchUi.WatchFace {
   private var _isAwake as Boolean;
   private var _showWatchHands as Boolean;
+  private var _partialUpdatesAllowed as Boolean;
 
   private var _fullScreenRefresh as Boolean;
   private var _offscreenBuffer as BufferedBitmap?;
@@ -20,6 +21,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var dndIconReference as BitmapReference?;
   private var rainIconReference as BitmapReference?;
   private var spo2IconReference as BitmapReference?;
+  private var moonPhaseReferences as Array<BitmapReference>?;
 
   // Complications
   private var currentTemp as Number?;
@@ -51,6 +53,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     _fullScreenRefresh = true;
     _isAwake = true;
     _showWatchHands = true;
+    _partialUpdatesAllowed = WatchUi.WatchFace has :onPartialUpdate;
 
     checkComplications();
   }
@@ -75,6 +78,24 @@ class TactixckfyView extends WatchUi.WatchFace {
       WatchUi.loadResource($.Rez.Drawables.rainIcon) as BitmapReference;
     spo2IconReference =
       WatchUi.loadResource($.Rez.Drawables.spo2Icon) as BitmapReference;
+
+    moonPhaseReferences = new Array<BitmapReference>[8];
+    moonPhaseReferences[0] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase0) as BitmapReference;
+    moonPhaseReferences[1] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase1) as BitmapReference;
+    moonPhaseReferences[2] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase2) as BitmapReference;
+    moonPhaseReferences[3] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase3) as BitmapReference;
+    moonPhaseReferences[4] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase4) as BitmapReference;
+    moonPhaseReferences[5] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase5) as BitmapReference;
+    moonPhaseReferences[6] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase6) as BitmapReference;
+    moonPhaseReferences[7] =
+      WatchUi.loadResource($.Rez.Drawables.moonphase7) as BitmapReference;
   }
 
   // Called when this View is brought to the foreground. Restore
@@ -89,6 +110,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   function onUpdate(dc as Dc) as Void {
     // We always want to refresh the full screen when we get a regular onUpdate call.
     _fullScreenRefresh = true;
+    dc.clearClip();
 
     // Get latest Weather
     currentWeather = Weather.getCurrentConditions();
@@ -97,9 +119,31 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     swapOffscreenToMain(dc);
 
-    if (_isAwake && _screenCenterPoint != null) {
-      drawSecondHand(dc);
+    if (_partialUpdatesAllowed) {
+      onPartialUpdate(dc);
+    } else if (_isAwake && _screenCenterPoint != null) {
+      drawSecondHand(dc, false);
     }
+
+    _fullScreenRefresh = false;
+  }
+
+  function onPartialUpdate(dc as Dc) as Void {
+    // If we're not doing a full screen refresh we need to re-draw the background
+    // before drawing the updated second hand position. Note this will only re-draw
+    // the background in the area specified by the previously computed clipping region.
+    if (!_fullScreenRefresh) {
+      swapOffscreenToMain(dc);
+    }
+
+    if (_screenCenterPoint != null) {
+      drawSecondHand(dc, true);
+    }
+  }
+
+  //! Turn off partial updates
+  public function turnPartialUpdatesOff() as Void {
+    _partialUpdatesAllowed = false;
   }
 
   // Called when this View is removed from the screen. Save the
@@ -158,6 +202,8 @@ class TactixckfyView extends WatchUi.WatchFace {
     drawDividers(dc);
 
     drawStatusIcons(dc);
+
+    drawMoonPhase(dc);
 
     if (_screenCenterPoint != null) {
       drawWatchHands(dc);
@@ -541,14 +587,56 @@ class TactixckfyView extends WatchUi.WatchFace {
     dc.drawLine(points[i - 1][0], points[i - 1][1], points[0][0], points[0][1]);
   }
 
-  private function drawSecondHand(dc as Dc) as Void {
+  private function drawSecondHand(dc as Dc, setClip as Boolean) as Void {
     dc.setAntiAlias(true);
     var clockTime = System.getClockTime();
 
     var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
 
+    var secondHandPoints = getSecondHandPoints(
+      _screenCenterPoint,
+      secondHandAngle
+    );
+
+    if (setClip) {
+      var curClip = getBoundingBox(secondHandPoints);
+      var bBoxWidth = curClip[1][0] - curClip[0][0] + 1;
+      var bBoxHeight = curClip[1][1] - curClip[0][1] + 1;
+      dc.setClip(curClip[0][0], curClip[0][1], bBoxWidth, bBoxHeight);
+    }
+
     dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_BLACK);
-    dc.fillPolygon(getSecondHandPoints(_screenCenterPoint, secondHandAngle));
+    dc.fillPolygon(secondHandPoints);
+  }
+
+  //! Compute a bounding box from the passed in points
+  //! @param points Points to include in bounding box
+  //! @return The bounding box points
+  private function getBoundingBox(
+    points as Array<Array<Number or Float> >
+  ) as Array<Array<Number or Float> > {
+    var min = [9999, 9999] as Array<Number>;
+    var max = [0, 0] as Array<Number>;
+
+    for (var i = 0; i < points.size(); ++i) {
+      if (points[i][0] < min[0]) {
+        min[0] = points[i][0];
+      }
+
+      if (points[i][1] < min[1]) {
+        min[1] = points[i][1];
+      }
+
+      if (points[i][0] > max[0]) {
+        max[0] = points[i][0];
+      }
+
+      if (points[i][1] > max[1]) {
+        max[1] = points[i][1];
+      }
+    }
+
+    return [min, max] as Array<Array<Number or Float> >;
   }
 
   private function getHourHandPoints(
@@ -649,6 +737,59 @@ class TactixckfyView extends WatchUi.WatchFace {
     }
 
     return result;
+  }
+
+  private function getMoonPhase(
+    y as Number,
+    m as Number,
+    d as Number
+  ) as Number {
+    /*
+      calculates the moon phase (0-7), accurate to 1 segment.
+      0 = > new moon.
+      4 => full moon.
+      */
+
+    var c = 0 as Number;
+    var e = 0 as Number;
+    var jd = 0.0;
+    var b = 0 as Number;
+
+    if (m < 3) {
+      y--;
+      m += 12;
+    }
+    ++m;
+    c = 365.25 * y;
+    e = 30.6 * m;
+    jd = c + e + d - 694039.09; /* jd is total days elapsed */
+    jd /= 29.53; /* divide by the moon cycle (29.53 days) */
+    b = jd.toNumber(); /* int(jd) -> b, take integer part of jd */
+    jd -= b; /* subtract integer part to leave fractional part of original jd */
+    b = (
+      jd * 8 +
+      0.5
+    ).toNumber(); /* scale fraction from 0-8 and round by adding 0.5 */
+    b = b & 7; /* 0 and 8 are the same so turn 8 into 0 */
+    return b;
+  }
+
+  private function drawMoonPhase(dc as Dc) as Void {
+    if (_showWatchHands) {
+      var now = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
+      var moonPhase = getMoonPhase(now.year, now.month, now.day);
+
+      dc.setAntiAlias(true);
+
+      dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+      dc.fillCircle(130, 130, 10);
+
+      if (moonPhaseReferences != null) {
+        var moonPhaseBitmap =
+          moonPhaseReferences[moonPhase].get() as BitmapResource;
+        dc.drawBitmap2(123, 123, moonPhaseBitmap, {});
+      }
+    }
   }
 
   private function checkComplications() as Void {

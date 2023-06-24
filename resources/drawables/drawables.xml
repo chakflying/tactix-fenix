@@ -4,4 +4,12 @@
     <bitmap id="dndIcon" filename="circle-minus.svg" x="center" y="center" scaleX="3%" scaleY="3%" />
     <bitmap id="rainIcon" filename="cloud-rain.svg" x="center" y="center" scaleX="3%" scaleY="3%" />
     <bitmap id="spo2Icon" filename="droplet-percent.svg" x="center" y="center" scaleX="3.5%" scaleY="3.5%" />
+    <bitmap id="moonphase0" filename="moon-phases/0.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase1" filename="moon-phases/1.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase2" filename="moon-phases/2.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase3" filename="moon-phases/3.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase4" filename="moon-phases/4.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase5" filename="moon-phases/5.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase6" filename="moon-phases/6.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
+    <bitmap id="moonphase7" filename="moon-phases/7.svg" x="center" y="center" scaleX="170%" scaleY="170%" />
 </drawables>

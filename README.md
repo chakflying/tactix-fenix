@@ -1,6 +1,6 @@
 # Tactix-Fenix
 
-![screenshot](docs/screenshot-01.png)
+![cover image](docs/hero-02.png)
 
 Tactix and TactixFace inspired watch face for the Fenix 7. Element placement are calculated by pixels so it's only tested to work with 260x260 screens.
 
@@ -8,3 +8,5 @@ Tactix and TactixFace inspired watch face for the Fenix 7. Element placement are
 - Tap and Hold to toggle Analog watch hands
 - Sunrise and Sunset time display does not depend on GPS location, instead uses Weather location
 - Moon phase calculated on device
+
+![screenshot](docs/screenshot-01.png)

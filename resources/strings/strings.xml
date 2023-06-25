@@ -25,4 +25,8 @@
     <string id="WindSpeedUnitMs">Meters per Second (m/s)</string>
     <string id="WindSpeedUnitKts">Knots (kts)</string>
 
+    <string id="TemperatureUnit">Temperature Unit</string>
+    <string id="TemperatureUnitC">Celsius (C)</string>
+    <string id="TemperatureUnitF">Fahrenheit (F)</string>
+
 </strings>

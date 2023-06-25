@@ -251,14 +251,29 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   private function setTemperatureLabel() as Void {
+    var unitSetting = Properties.getValue("TemperatureUnit") as Number;
+
     var tempString = "--°C";
+    if (unitSetting == 1) {
+      tempString = "--°F";
+    }
+
     if (currentTemp != null) {
-      tempString = Lang.format("$1$°C", [currentTemp.format("%d")]);
+      tempString = Lang.format("$1$°$2$", [
+        unitSetting == 1
+          ? celsiusToFahrenheit(currentTemp).format("%d")
+          : currentTemp.format("%d"),
+        unitSetting == 1 ? "F" : "C",
+      ]);
     }
 
     var temperatureLabel = View.findDrawableById("TemperatureLabel") as Text;
     temperatureLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     temperatureLabel.setText(tempString);
+  }
+
+  private function celsiusToFahrenheit(c as Number) as Number {
+    return Math.round(c.toFloat() * 1.8 + 32).toNumber();
   }
 
   private function setPercipLabel() as Void {
@@ -339,7 +354,9 @@ class TactixckfyView extends WatchUi.WatchFace {
           currentWindString = "CALM";
         } else {
           currentWindString = Lang.format("$1$ $2$", [
-            Math.round(currentWeather.windSpeed * unitConversionFactor).format("%.0f"),
+            Math.round(currentWeather.windSpeed * unitConversionFactor).format(
+              "%.0f"
+            ),
             bearingToDirection(currentWeather.windBearing),
           ]);
         }

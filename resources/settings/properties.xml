@@ -5,5 +5,6 @@
     <property id="SubHeadingColor" type="number">0xAAAAAA</property>
     <property id="UseMilitaryFormat" type="boolean">true</property>
     <property id="WindSpeedUnit" type="number">0</property>
+    <property id="TemperatureUnit" type="number">0</property>
 
 </properties>

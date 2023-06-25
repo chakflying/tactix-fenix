@@ -8,5 +8,3 @@ Tactix and TactixFace inspired watch face for the Fenix 7. Element placement are
 - Tap and Hold to toggle Analog watch hands
 - Sunrise and Sunset time display does not depend on GPS location, instead uses Weather location
 - Moon phase calculated on device
-
-![screenshot](docs/screenshot-01.png)

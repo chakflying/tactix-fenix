@@ -322,6 +322,13 @@ class TactixckfyView extends WatchUi.WatchFace {
     var labelLabel = View.findDrawableById("topRightLabelLabel") as Text;
     labelLabel.setText("WIND");
 
+    var unitConversionFactor = 1.0;
+    if (Properties.getValue("WindSpeedUnit") == 0) {
+      unitConversionFactor = 3.6;
+    } else if (Properties.getValue("WindSpeedUnit") == 2) {
+      unitConversionFactor = 1.944;
+    }
+
     var currentWindString = "----";
     if (currentWeather != null) {
       if (
@@ -332,7 +339,7 @@ class TactixckfyView extends WatchUi.WatchFace {
           currentWindString = "CALM";
         } else {
           currentWindString = Lang.format("$1$ $2$", [
-            (currentWeather.windSpeed * 3.6).format("%.0f"),
+            Math.round(currentWeather.windSpeed * unitConversionFactor).format("%.0f"),
             bearingToDirection(currentWeather.windBearing),
           ]);
         }

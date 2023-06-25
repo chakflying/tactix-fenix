@@ -30,4 +30,12 @@
         <settingConfig type="boolean" />
     </setting>
 
+    <setting propertyKey="@Properties.WindSpeedUnit" title="@Strings.WindSpeedUnit">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.WindSpeedUnitKmh</listEntry>
+            <listEntry value="1">@Strings.WindSpeedUnitMs</listEntry>
+            <listEntry value="2">@Strings.WindSpeedUnitKts</listEntry>
+        </settingConfig>
+    </setting>
+
 </settings>

@@ -20,4 +20,9 @@
     <string id="MoonPhase">Moon Phase</string>
     <string id="Baro">Barometer (Sea Level)</string>
 
+    <string id="WindSpeedUnit">Wind Speed Unit</string>
+    <string id="WindSpeedUnitKmh">Kilometers per Hour (km/h)</string>
+    <string id="WindSpeedUnitMs">Meters per Second (m/s)</string>
+    <string id="WindSpeedUnitKts">Knots (kts)</string>
+
 </strings>

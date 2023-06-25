@@ -462,7 +462,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   private function drawStatusArcs(dc as Dc) as Void {
     dc.setAntiAlias(true);
 
-    var arcRadius = 129;
+    var arcRadius = 128;
+    dc.setPenWidth(4);
 
     var battery = (System.getSystemStats().battery as Lang.Float) / 100;
     if (battery < 0.3) {
@@ -472,7 +473,6 @@ class TactixckfyView extends WatchUi.WatchFace {
     } else {
       dc.setColor(0x005500, Graphics.COLOR_BLACK);
     }
-    dc.setPenWidth(2);
     dc.drawArc(
       _screenCenterPoint[0],
       _screenCenterPoint[1],
@@ -497,7 +497,6 @@ class TactixckfyView extends WatchUi.WatchFace {
         arcEnd = 271;
       }
 
-      dc.setPenWidth(2);
       dc.drawArc(
         _screenCenterPoint[0],
         _screenCenterPoint[1],

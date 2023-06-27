@@ -763,44 +763,87 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   private function getMoonPhase(
-    y as Number,
-    m as Number,
-    d as Number
+    year as Number,
+    mon as Number,
+    day as Number,
+    hour as Number
   ) as Number {
     /*
       calculates the moon phase (0-7), accurate to 1 segment.
       0 = > new moon.
       4 => full moon.
+      implementation from sffjunkie/astral
       */
 
-    var c = 0 as Number;
-    var e = 0 as Number;
-    var jd = 0.0;
-    var b = 0 as Number;
+    var jd = getJulianDay(year, mon, day, hour);
+    // System.println("Julian Day: " + jd.format("%f"));
 
-    if (m < 3) {
-      y--;
+    var dt = Math.pow(jd - 2382148.0, 2) / (41048480.0 * 86400.0);
+    var t = (jd + dt - 2451545.0) / 36525.0;
+    var t2 = Math.pow(t, 2);
+    var t3 = Math.pow(t, 3);
+
+    var d = 297.85 + 445267.1115 * t - 0.00163 * t2 + t3 / 545868.0;
+    while(d > 360.0) {
+      d -= 360.0;
+    }
+    d = Math.toRadians(d);
+
+    var m = 357.53 + 35999.0503 * t;
+    while(m > 360.0) {
+      m -= 360.0;
+    }
+    m = Math.toRadians(m);
+
+    var m1 = 134.96 + 477198.8676 * t + 0.008997 * t2 + t3 / 69699.0;
+    while(m1 > 360.0) {
+      m1 -= 360.0;
+    }
+    m1 = Math.toRadians(m1);
+
+    var elong = Math.toDegrees(d) + 6.29 * Math.sin(m1);
+    elong -= 2.1 * Math.sin(m);
+    elong += 1.27 * Math.sin(2.0 * d - m1);
+    elong += 0.66 * Math.sin(2.0 * d);
+    while (elong > 360.0) {
+      elong -= 360.0;
+    }
+
+    var moon = ((elong + 6.43) / 360.0) * 28.0;
+    // System.println("Moon Phase: " + moon.format("%f"));
+    return Math.round(moon / 4.0).toNumber();
+  }
+
+  private function getJulianDay(
+    y as Number,
+    m as Number,
+    d as Number,
+    h as Number
+  ) as Float {
+    var day_fraction = h.toFloat() / 24.0;
+
+    if (m <= 2) {
+      y -= 1;
       m += 12;
     }
-    ++m;
-    c = 365.25 * y;
-    e = 30.6 * m;
-    jd = c + e + d - 694039.09; /* jd is total days elapsed */
-    jd /= 29.53; /* divide by the moon cycle (29.53 days) */
-    b = jd.toNumber(); /* int(jd) -> b, take integer part of jd */
-    jd -= b; /* subtract integer part to leave fractional part of original jd */
-    b = (
-      jd * 8 +
-      0.5
-    ).toNumber(); /* scale fraction from 0-8 and round by adding 0.5 */
-    b = b & 7; /* 0 and 8 are the same so turn 8 into 0 */
-    return b;
+
+    var a = (y.toFloat() / 100.0).toNumber();
+    var b = 2 - a + (a.toFloat() / 4).toNumber();
+
+    return (
+      (365.25 * (y + 4716)).toNumber() +
+      (30.6001 * (m + 1)).toNumber() +
+      d.toFloat() +
+      day_fraction +
+      b -
+      1524.5
+    );
   }
 
   private function drawMoonPhase(dc as Dc) as Void {
     if (_showWatchHands) {
-      var now = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
-      var moonPhase = getMoonPhase(now.year, now.month, now.day);
+      var now = Gregorian.utcInfo(Time.now(), Time.FORMAT_SHORT);
+      var moonPhase = getMoonPhase(now.year, now.month, now.day, now.hour);
 
       dc.setAntiAlias(true);
 

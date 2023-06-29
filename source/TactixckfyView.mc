@@ -12,6 +12,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var _showWatchHands as Boolean;
   private var _partialUpdatesAllowed as Boolean;
 
+  private var clockTime as ClockTime;
+
   private var _fullScreenRefresh as Boolean;
   private var _offscreenBuffer as BufferedBitmap?;
   private var _screenCenterPoint as Array<Number>?;
@@ -47,6 +49,25 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private var currentWeather as CurrentConditions?;
 
+  // Layout References
+  private var timeLabel as Text?;
+  private var dateLabel as Text?;
+  private var temperatureLabel as Text?;
+  private var percipLabel as Text?;
+  private var bloodOxyLabel as Text?;
+  private var battDLabel as Text?;
+  private var tLLabelLabel as Text?;
+  private var tLDataLabel as Text?;
+  private var tRLabelLabel as Text?;
+  private var tRDataLabel as Text?;
+  private var bLLabelLabel as Text?;
+  private var bLDataLabel as Text?;
+  private var bRLabelLabel as Text?;
+  private var bRDataLabel as Text?;
+
+  private var currentMoonphase as Number?;
+  private var moonphaseLastCalculated as Moment?;
+
   function initialize() {
     WatchFace.initialize();
 
@@ -54,6 +75,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     _isAwake = true;
     _showWatchHands = true;
     _partialUpdatesAllowed = WatchUi.WatchFace has :onPartialUpdate;
+    clockTime = System.getClockTime();
 
     checkComplications();
   }
@@ -96,6 +118,21 @@ class TactixckfyView extends WatchUi.WatchFace {
       WatchUi.loadResource($.Rez.Drawables.moonphase6) as BitmapReference;
     moonPhaseReferences[7] =
       WatchUi.loadResource($.Rez.Drawables.moonphase7) as BitmapReference;
+
+    timeLabel = View.findDrawableById("TimeLabel") as Text;
+    dateLabel = View.findDrawableById("DateLabel") as Text;
+    temperatureLabel = View.findDrawableById("TemperatureLabel") as Text;
+    percipLabel = View.findDrawableById("PercipLabel") as Text;
+    bloodOxyLabel = View.findDrawableById("BloodOxyLabel") as Text;
+    battDLabel = View.findDrawableById("battDLabel") as Text;
+    tLLabelLabel = View.findDrawableById("topLeftLabelLabel") as Text;
+    tLDataLabel = View.findDrawableById("topLeftDataLabel") as Text;
+    tRLabelLabel = View.findDrawableById("topRightLabelLabel") as Text;
+    tRDataLabel = View.findDrawableById("topRightDataLabel") as Text;
+    bLLabelLabel = View.findDrawableById("bottomLeftLabelLabel") as Text;
+    bLDataLabel = View.findDrawableById("bottomLeftDataLabel") as Text;
+    bRLabelLabel = View.findDrawableById("bottomRightLabelLabel") as Text;
+    bRDataLabel = View.findDrawableById("bottomRightDataLabel") as Text;
   }
 
   // Called when this View is brought to the foreground. Restore
@@ -108,6 +145,8 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   // Update the view
   function onUpdate(dc as Dc) as Void {
+    clockTime = System.getClockTime();
+
     // We always want to refresh the full screen when we get a regular onUpdate call.
     _fullScreenRefresh = true;
     dc.clearClip();
@@ -129,6 +168,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   function onPartialUpdate(dc as Dc) as Void {
+    clockTime = System.getClockTime();
+
     // If we're not doing a full screen refresh we need to re-draw the background
     // before drawing the updated second hand position. Note this will only re-draw
     // the background in the area specified by the previously computed clipping region.
@@ -196,7 +237,6 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     drawSunEventsMarkers(dc);
 
-    // Draw the tick marks around the edges of the screen
     drawTickMarks(dc);
 
     drawDividers(dc);
@@ -213,7 +253,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   private function setTimeLabel() as Void {
     // Get the current time and format it correctly
     var timeFormat = "$1$:$2$";
-    var clockTime = System.getClockTime();
+
     var hours = clockTime.hour;
     if (!System.getDeviceSettings().is24Hour) {
       if (hours > 12) {
@@ -231,7 +271,6 @@ class TactixckfyView extends WatchUi.WatchFace {
     ]);
 
     // Update the view
-    var timeLabel = View.findDrawableById("TimeLabel") as Text;
     timeLabel.setColor(Properties.getValue("ForegroundColor") as Number);
     timeLabel.setText(timeString);
   }
@@ -245,7 +284,6 @@ class TactixckfyView extends WatchUi.WatchFace {
       (info.month as Lang.String).toUpper(),
     ]);
 
-    var dateLabel = View.findDrawableById("DateLabel") as Text;
     dateLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     dateLabel.setText(dateString);
   }
@@ -267,7 +305,6 @@ class TactixckfyView extends WatchUi.WatchFace {
       ]);
     }
 
-    var temperatureLabel = View.findDrawableById("TemperatureLabel") as Text;
     temperatureLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     temperatureLabel.setText(tempString);
   }
@@ -287,7 +324,6 @@ class TactixckfyView extends WatchUi.WatchFace {
       }
     }
 
-    var percipLabel = View.findDrawableById("PercipLabel") as Text;
     percipLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     percipLabel.setText(percipString);
   }
@@ -308,7 +344,6 @@ class TactixckfyView extends WatchUi.WatchFace {
       }
     }
 
-    var bloodOxyLabel = View.findDrawableById("BloodOxyLabel") as Text;
     bloodOxyLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     bloodOxyLabel.setText(bloodOxyString);
   }
@@ -316,26 +351,23 @@ class TactixckfyView extends WatchUi.WatchFace {
   private function setBatDData() as Void {
     var battD = System.getSystemStats().batteryInDays.format("%.0f");
     var battDString = Lang.format("$1$d", [battD]);
-    var battDLabel = View.findDrawableById("battDLabel") as Text;
+
     battDLabel.setColor(Properties.getValue("SubHeadingColor") as Number);
     battDLabel.setText(battDString);
   }
 
   private function setTopLeftData() as Void {
-    var labelLabel = View.findDrawableById("topLeftLabelLabel") as Text;
-    labelLabel.setText("BARO");
+    tLLabelLabel.setText("BARO");
 
     var currentQNHString = "----";
     if (currentQNH != null) {
       currentQNHString = (currentQNH / 100).format("%.1f");
-      var dataLabel = View.findDrawableById("topLeftDataLabel") as Text;
-      dataLabel.setText(currentQNHString);
+      tLDataLabel.setText(currentQNHString);
     }
   }
 
   private function setTopRightData() as Void {
-    var labelLabel = View.findDrawableById("topRightLabelLabel") as Text;
-    labelLabel.setText("WIND");
+    tRLabelLabel.setText("WIND");
 
     var unitConversionFactor = 1.0;
     if (Properties.getValue("WindSpeedUnit") == 0) {
@@ -362,30 +394,25 @@ class TactixckfyView extends WatchUi.WatchFace {
         }
       }
 
-      var dataLabel = View.findDrawableById("topRightDataLabel") as Text;
-      dataLabel.setText(currentWindString);
+      tRDataLabel.setText(currentWindString);
     }
   }
 
   private function setLowerLeftData() as Void {
-    var labelLabel = View.findDrawableById("lowerLeftLabelLabel") as Text;
-    labelLabel.setText("STEP");
+    bLLabelLabel.setText("STEP");
 
     if (currentStep != null) {
-      var dataLabel = View.findDrawableById("lowerLeftDataLabel") as Text;
-      dataLabel.setText(currentStep.format("%d"));
+      bLDataLabel.setText(currentStep.format("%d"));
     }
   }
 
   private function setLowerRightData() as Void {
-    var labelLabel = View.findDrawableById("lowerRightLabelLabel") as Text;
-    labelLabel.setText("HR");
+    bRLabelLabel.setText("HR");
 
     var currentHRString = "--";
     if (currentHR != null) {
       currentHRString = currentHR.format("%d");
-      var dataLabel = View.findDrawableById("lowerRightDataLabel") as Text;
-      dataLabel.setText(currentHRString);
+      bRDataLabel.setText(currentHRString);
     }
   }
 
@@ -423,26 +450,27 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     var outerRad = width / 2;
 
-    for (var i = 0; i <= 59; i++) {
+    for (var i = 0; i <= 29; i++) {
       var angle = (i * 6 * Math.PI) / 180;
       var innerRad = outerRad - smallHashLength;
       if (i % 5 == 0) {
         innerRad = outerRad - bigHashLength;
         dc.setPenWidth(3);
-        //dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
       } else {
         dc.setPenWidth(1);
       }
-      // Partially unrolled loop to draw two tickmarks in 15 minute block.
+      // Partially unrolled loop to draw two tickmarks
       var sY = outerRad + innerRad * Math.sin(angle);
       var eY = outerRad + outerRad * Math.sin(angle);
       var sX = outerRad + innerRad * Math.cos(angle);
       var eX = outerRad + outerRad * Math.cos(angle);
       dc.drawLine(sX, sY, eX, eY);
+      dc.drawLine(260 - sX, 260 - sY, 260 - eX, 260 - eY);
     }
   }
 
   private function drawDividers(dc as Dc) as Void {
+    dc.setPenWidth(1);
     dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
     dc.drawLine(40, 75, 220, 75);
     dc.drawLine(40, 185, 220, 185);
@@ -566,7 +594,6 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private function drawWatchHands(dc as Dc) as Void {
     dc.setAntiAlias(true);
-    var clockTime = System.getClockTime();
 
     if (_showWatchHands) {
       var hourHandAngle =
@@ -612,7 +639,6 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private function drawSecondHand(dc as Dc, setClip as Boolean) as Void {
     dc.setAntiAlias(true);
-    var clockTime = System.getClockTime();
 
     var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
 
@@ -784,19 +810,19 @@ class TactixckfyView extends WatchUi.WatchFace {
     var t3 = Math.pow(t, 3);
 
     var d = 297.85 + 445267.1115 * t - 0.00163 * t2 + t3 / 545868.0;
-    while(d > 360.0) {
+    while (d > 360.0) {
       d -= 360.0;
     }
     d = Math.toRadians(d);
 
     var m = 357.53 + 35999.0503 * t;
-    while(m > 360.0) {
+    while (m > 360.0) {
       m -= 360.0;
     }
     m = Math.toRadians(m);
 
     var m1 = 134.96 + 477198.8676 * t + 0.008997 * t2 + t3 / 69699.0;
-    while(m1 > 360.0) {
+    while (m1 > 360.0) {
       m1 -= 360.0;
     }
     m1 = Math.toRadians(m1);
@@ -842,8 +868,22 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private function drawMoonPhase(dc as Dc) as Void {
     if (_showWatchHands) {
-      var now = Gregorian.utcInfo(Time.now(), Time.FORMAT_SHORT);
-      var moonPhase = getMoonPhase(now.year, now.month, now.day, now.hour);
+      var now = Time.now();
+      if (
+        currentMoonphase == null ||
+        (moonphaseLastCalculated != null &&
+          now.compare(moonphaseLastCalculated) > 3600)
+      ) {
+        // Moonphase outdated or not available
+        var utcInfo = Gregorian.utcInfo(now, Time.FORMAT_SHORT);
+        currentMoonphase = getMoonPhase(
+          utcInfo.year,
+          utcInfo.month,
+          utcInfo.day,
+          utcInfo.hour
+        );
+        moonphaseLastCalculated = now;
+      }
 
       dc.setAntiAlias(true);
 
@@ -852,7 +892,7 @@ class TactixckfyView extends WatchUi.WatchFace {
 
       if (moonPhaseReferences != null) {
         var moonPhaseBitmap =
-          moonPhaseReferences[moonPhase].get() as BitmapResource;
+          moonPhaseReferences[currentMoonphase].get() as BitmapResource;
         dc.drawBitmap2(123, 123, moonPhaseBitmap, {});
       }
     }

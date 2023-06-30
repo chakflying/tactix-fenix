@@ -402,7 +402,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     bLLabelLabel.setText("STEP");
 
     if (currentStep != null) {
-      bLDataLabel.setText(currentStep.format("%d"));
+      if (currentStep instanceof Float) {
+        bLDataLabel.setText((currentStep * 1000).format("%.0f"));
+      } else {
+        bLDataLabel.setText(currentStep.format("%d"));
+      }
     }
   }
 

@@ -37,6 +37,7 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private var currentHR as Number?;
   private var currentHRComplicationId as Complications.Id?;
+  private var currentHRLastUpdated as Moment?;
 
   private var currentBodyBatt as Number?;
   private var currentBodyBattComplicationId as Complications.Id?;
@@ -362,8 +363,9 @@ class TactixckfyView extends WatchUi.WatchFace {
     var currentQNHString = "----";
     if (currentQNH != null) {
       currentQNHString = (currentQNH / 100).format("%.1f");
-      tLDataLabel.setText(currentQNHString);
     }
+
+    tLDataLabel.setText(currentQNHString);
   }
 
   private function setTopRightData() as Void {
@@ -393,31 +395,39 @@ class TactixckfyView extends WatchUi.WatchFace {
           ]);
         }
       }
-
-      tRDataLabel.setText(currentWindString);
     }
+
+    tRDataLabel.setText(currentWindString);
   }
 
   private function setLowerLeftData() as Void {
     bLLabelLabel.setText("STEP");
 
+    var currentStepString = "--";
     if (currentStep != null) {
       if (currentStep instanceof Float) {
-        bLDataLabel.setText((currentStep * 1000).format("%.0f"));
+        currentStepString = (currentStep * 1000).format("%.0f");
       } else {
-        bLDataLabel.setText(currentStep.format("%d"));
+        currentStepString = currentStep.format("%d");
       }
     }
+
+    bLDataLabel.setText(currentStepString);
   }
 
   private function setLowerRightData() as Void {
     bRLabelLabel.setText("HR");
 
     var currentHRString = "--";
-    if (currentHR != null) {
+    if (
+      currentHR != null &&
+      currentHRLastUpdated != null &&
+      Time.now().compare(currentHRLastUpdated) < 60
+    ) {
       currentHRString = currentHR.format("%d");
-      bRDataLabel.setText(currentHRString);
     }
+  
+    bRDataLabel.setText(currentHRString);
   }
 
   private function bearingToDirection(bearing as Number) as String {
@@ -1014,6 +1024,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     if (complicationId == currentHRComplicationId) {
       if (dataValue != null) {
         currentHR = dataValue as Lang.Number;
+        currentHRLastUpdated = Time.now();
       }
     }
 

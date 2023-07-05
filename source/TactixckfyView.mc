@@ -69,6 +69,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var currentMoonphase as Number?;
   private var moonphaseLastCalculated as Moment?;
 
+  private var systemSettings as DeviceSettings;
+
   function initialize() {
     WatchFace.initialize();
 
@@ -77,6 +79,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     _showWatchHands = true;
     _partialUpdatesAllowed = WatchUi.WatchFace has :onPartialUpdate;
     clockTime = System.getClockTime();
+    systemSettings = System.getDeviceSettings();
 
     checkComplications();
   }
@@ -147,6 +150,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   // Update the view
   function onUpdate(dc as Dc) as Void {
     clockTime = System.getClockTime();
+    systemSettings = System.getDeviceSettings();
 
     // We always want to refresh the full screen when we get a regular onUpdate call.
     _fullScreenRefresh = true;
@@ -290,19 +294,19 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   private function setTemperatureLabel() as Void {
-    var unitSetting = Properties.getValue("TemperatureUnit") as Number;
+    var unitSetting = systemSettings.temperatureUnits;
 
     var tempString = "--°C";
-    if (unitSetting == 1) {
+    if (unitSetting == System.UNIT_STATUTE) {
       tempString = "--°F";
     }
 
     if (currentTemp != null) {
       tempString = Lang.format("$1$°$2$", [
-        unitSetting == 1
+        unitSetting == System.UNIT_STATUTE
           ? celsiusToFahrenheit(currentTemp).format("%d")
           : currentTemp.format("%d"),
-        unitSetting == 1 ? "F" : "C",
+        unitSetting == System.UNIT_STATUTE ? "F" : "C",
       ]);
     }
 

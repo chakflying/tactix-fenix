@@ -33,12 +33,4 @@
             <listEntry value="2">@Strings.WindSpeedUnitKts</listEntry>
         </settingConfig>
     </setting>
-
-    <setting propertyKey="@Properties.TemperatureUnit" title="@Strings.TemperatureUnit">
-        <settingConfig type="list">
-            <listEntry value="0">@Strings.TemperatureUnitC</listEntry>
-            <listEntry value="1">@Strings.TemperatureUnitF</listEntry>
-        </settingConfig>
-    </setting>
-
 </settings>

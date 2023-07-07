@@ -51,7 +51,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var currentWeather as CurrentConditions?;
 
   // Layout References
-  private var timeLabel as Text?;
+  private var timeHourLabel as Text?;
+  private var timeMinuteLabel as Text?;
   private var dateLabel as Text?;
   private var temperatureLabel as Text?;
   private var percipLabel as Text?;
@@ -123,7 +124,8 @@ class TactixckfyView extends WatchUi.WatchFace {
     moonPhaseReferences[7] =
       WatchUi.loadResource($.Rez.Drawables.moonphase7) as BitmapReference;
 
-    timeLabel = View.findDrawableById("TimeLabel") as Text;
+    timeHourLabel = View.findDrawableById("TimeHourLabel") as Text;
+    timeMinuteLabel = View.findDrawableById("TimeMinuteLabel") as Text;
     dateLabel = View.findDrawableById("DateLabel") as Text;
     temperatureLabel = View.findDrawableById("TemperatureLabel") as Text;
     percipLabel = View.findDrawableById("PercipLabel") as Text;
@@ -256,28 +258,22 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   private function setTimeLabel() as Void {
-    // Get the current time and format it correctly
-    var timeFormat = "$1$:$2$";
-
     var hours = clockTime.hour;
     if (!System.getDeviceSettings().is24Hour) {
       if (hours > 12) {
         hours = hours - 12;
       }
-    } else {
-      if (Properties.getValue("UseMilitaryFormat")) {
-        timeFormat = "$1$$2$";
-        hours = hours.format("%02d");
-      }
-    }
-    var timeString = Lang.format(timeFormat, [
-      hours,
-      clockTime.min.format("%02d"),
-    ]);
+    } 
+
+    var hourString = Lang.format("$1$",[ hours.format("%02d") ]);
+    var minuteString = Lang.format("$1$", [ clockTime.min.format("%02d") ]);
 
     // Update the view
-    timeLabel.setColor(Properties.getValue("ForegroundColor") as Number);
-    timeLabel.setText(timeString);
+    timeHourLabel.setColor(Properties.getValue("ForegroundColor") as Number);
+    timeHourLabel.setText(hourString);
+
+    timeMinuteLabel.setColor(Properties.getValue("ForegroundColor2") as Number);
+    timeMinuteLabel.setText(minuteString);
   }
 
   private function setDateLabel() as Void {
@@ -506,13 +502,13 @@ class TactixckfyView extends WatchUi.WatchFace {
       if (deviceSettings.phoneConnected) {
         var bluetoothIconBitmap =
           bluetoothIconReference.get() as BitmapResource;
-        dc.drawBitmap2(25, 122, bluetoothIconBitmap, {});
+        dc.drawBitmap2(20, 122, bluetoothIconBitmap, {});
       }
     }
     if (dndIconReference != null) {
       if (deviceSettings.doNotDisturb) {
         var dndIconBitmap = dndIconReference.get() as BitmapResource;
-        dc.drawBitmap2(220, 123, dndIconBitmap, {});
+        dc.drawBitmap2(227, 123, dndIconBitmap, {});
       }
     }
     if (rainIconReference != null) {

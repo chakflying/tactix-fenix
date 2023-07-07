@@ -2,8 +2,8 @@
     <drawable class="Background" />
     <label id="DateLabel" x="40" y="75" font="Graphics.FONT_TINY" justification="Graphics.TEXT_JUSTIFY_LEFT" color="Graphics.COLOR_WHITE" />
     <label id="TemperatureLabel" x="220" y="75" font="Graphics.FONT_TINY" justification="Graphics.TEXT_JUSTIFY_RIGHT" color="Graphics.COLOR_WHITE" />
-    <label id="TimeHourLabel" x="122" y="71" font="@Fonts.font_chivo" justification="Graphics.TEXT_JUSTIFY_RIGHT" color="Graphics.COLOR_BLUE" />
-    <label id="TimeMinuteLabel" x="138" y="71" font="@Fonts.font_chivo" justification="Graphics.TEXT_JUSTIFY_LEFT" color="Graphics.COLOR_BLUE" />
+    <label id="TimeHourLabel" x="125" y="71" font="@Fonts.font_chivo" justification="Graphics.TEXT_JUSTIFY_RIGHT" color="Graphics.COLOR_BLUE" />
+    <label id="TimeMinuteLabel" x="135" y="71" font="@Fonts.font_chivo" justification="Graphics.TEXT_JUSTIFY_LEFT" color="Graphics.COLOR_BLUE" />
     <label id="BloodOxyLabel" x="60" y="155" font="Graphics.FONT_TINY" justification="Graphics.TEXT_JUSTIFY_LEFT" color="Graphics.COLOR_WHITE" />
     <label id="PercipLabel" x="200" y="155" font="Graphics.FONT_TINY" justification="Graphics.TEXT_JUSTIFY_RIGHT" color="Graphics.COLOR_WHITE" />
     <label id="battDLabel" x="center" y="155" font="Graphics.FONT_TINY" justification="Graphics.TEXT_JUSTIFY_CENTER" color="Graphics.COLOR_WHITE" />

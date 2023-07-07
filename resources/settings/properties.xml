@@ -2,7 +2,7 @@
 
     <property id="BackgroundColor" type="number">0x000000</property>
     <property id="ForegroundColor" type="number">0xFFFFAA</property>
-    <property id="ForegroundColor2" type="number">0xAAFFFF</property>
+    <property id="ForegroundColor2" type="number">0xAAFFAA</property>
     <property id="SubHeadingColor" type="number">0xAAAAAA</property>
     <property id="WindSpeedUnit" type="number">0</property>
 

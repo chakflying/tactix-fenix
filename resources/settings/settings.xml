@@ -7,6 +7,7 @@
             <listEntry value="0xFF0000">@Strings.ColorRed</listEntry>
             <listEntry value="0xFFAA55">@Strings.ColorLightOrange</listEntry>
             <listEntry value="0xFFFFAA">@Strings.ColorLightYellow</listEntry>
+            <listEntry value="0xAAFFAA">@Strings.ColorLightGreen</listEntry>
             <listEntry value="0xAAFFFF">@Strings.ColorLightBlue</listEntry>
             <listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
             <listEntry value="0xAAAAAA">@Strings.ColorLightGray</listEntry>
@@ -21,6 +22,7 @@
             <listEntry value="0xFF0000">@Strings.ColorRed</listEntry>
             <listEntry value="0xFFAA55">@Strings.ColorLightOrange</listEntry>
             <listEntry value="0xFFFFAA">@Strings.ColorLightYellow</listEntry>
+            <listEntry value="0xAAFFAA">@Strings.ColorLightGreen</listEntry>
             <listEntry value="0xAAFFFF">@Strings.ColorLightBlue</listEntry>
             <listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
             <listEntry value="0xAAAAAA">@Strings.ColorLightGray</listEntry>

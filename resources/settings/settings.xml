@@ -50,4 +50,11 @@
             <listEntry value="2">@Strings.WindSpeedUnitKts</listEntry>
         </settingConfig>
     </setting>
+
+    <setting propertyKey="@Properties.DimOnSleep" title="@Strings.DimOnSleep">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.False</listEntry>
+            <listEntry value="1">@Strings.True</listEntry>
+        </settingConfig>
+    </setting>
 </settings>

@@ -13,10 +13,11 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var _partialUpdatesAllowed as Boolean;
 
   private var clockTime as ClockTime;
+  private var now as Time.Moment;
 
   private var _fullScreenRefresh as Boolean;
   private var _offscreenBuffer as BufferedBitmap?;
-  private var _screenCenterPoint as Array<Number>?;
+  private var _screenCenterPoint as Array<Number>;
 
   // Drawables
   private var bluetoothIconReference as BitmapReference?;
@@ -81,6 +82,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     _partialUpdatesAllowed = WatchUi.WatchFace has :onPartialUpdate;
     clockTime = System.getClockTime();
     systemSettings = System.getDeviceSettings();
+    _screenCenterPoint =
+      [systemSettings.screenWidth / 2, systemSettings.screenHeight / 2] as
+      Array<Number>;
+
+    now = Time.now() as Time.Moment;
 
     checkComplications();
   }
@@ -93,9 +99,6 @@ class TactixckfyView extends WatchUi.WatchFace {
     }).get();
 
     setLayout(Rez.Layouts.WatchFace(_offscreenBuffer.getDc()));
-
-    _screenCenterPoint =
-      [dc.getWidth() / 2, dc.getHeight() / 2] as Array<Number>;
 
     bluetoothIconReference =
       WatchUi.loadResource($.Rez.Drawables.bluetoothIcon) as BitmapReference;
@@ -152,6 +155,7 @@ class TactixckfyView extends WatchUi.WatchFace {
   // Update the view
   function onUpdate(dc as Dc) as Void {
     clockTime = System.getClockTime();
+    now = Time.now() as Time.Moment;
     systemSettings = System.getDeviceSettings();
 
     // We always want to refresh the full screen when we get a regular onUpdate call.
@@ -167,7 +171,7 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     if (_partialUpdatesAllowed) {
       onPartialUpdate(dc);
-    } else if (_isAwake && _screenCenterPoint != null) {
+    } else if (_isAwake) {
       drawSecondHand(dc, false);
     }
 
@@ -184,9 +188,7 @@ class TactixckfyView extends WatchUi.WatchFace {
       swapOffscreenToMain(dc);
     }
 
-    if (_screenCenterPoint != null) {
-      drawSecondHand(dc, true);
-    }
+    drawSecondHand(dc, true);
   }
 
   //! Turn off partial updates
@@ -238,35 +240,35 @@ class TactixckfyView extends WatchUi.WatchFace {
     // Call the parent onUpdate function to redraw the layout
     View.onUpdate(dc);
 
-    if (_screenCenterPoint != null) {
-      drawStatusArcs(dc);
-    }
-
+    drawStatusArcs(dc);
+    drawDividers(dc);
+    drawStatusIcons(dc);
     drawSunEventsMarkers(dc);
+    drawMoonPhase(dc);
+
+    // Overlay a Rect to dim the screen
+    if (!_isAwake && (Properties.getValue("DimOnSleep") as Number) == 1) {
+      dc.setFill(Graphics.createColor(64, 0, 0, 0));
+      dc.setBlendMode(Graphics.BLEND_MODE_MULTIPLY);
+      dc.fillRectangle(0, 0, 260, 260);
+      dc.setBlendMode(Graphics.BLEND_MODE_DEFAULT);
+    }
 
     drawTickMarks(dc);
 
-    drawDividers(dc);
-
-    drawStatusIcons(dc);
-
-    drawMoonPhase(dc);
-
-    if (_screenCenterPoint != null) {
-      drawWatchHands(dc);
-    }
+    drawWatchHands(dc);
   }
 
   private function setTimeLabel() as Void {
     var hours = clockTime.hour;
-    if (!System.getDeviceSettings().is24Hour) {
+    if (!systemSettings.is24Hour) {
       if (hours > 12) {
         hours = hours - 12;
       }
-    } 
+    }
 
-    var hourString = Lang.format("$1$",[ hours.format("%02d") ]);
-    var minuteString = Lang.format("$1$", [ clockTime.min.format("%02d") ]);
+    var hourString = Lang.format("$1$", [hours.format("%02d")]);
+    var minuteString = Lang.format("$1$", [clockTime.min.format("%02d")]);
 
     // Update the view
     timeHourLabel.setColor(Properties.getValue("ForegroundColor") as Number);
@@ -337,7 +339,6 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     var oxySample = oxyHistoryIter.next();
     if (oxySample != null) {
-      var now = Time.now() as Time.Moment;
       var elapsed = now.subtract(oxySample.when) as Time.Duration;
       var twoHours = new Time.Duration(7200);
       if (elapsed.lessThan(twoHours) && oxySample.data != null) {
@@ -362,7 +363,11 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     var currentQNHString = "----";
     if (currentQNH != null) {
-      currentQNHString = (currentQNH / 100).format("%.1f");
+      if (systemSettings.elevationUnits == System.UNIT_METRIC) {
+        currentQNHString = (currentQNH / 100).format("%.1f");
+      } else {
+        currentQNHString = (currentQNH / 100 * 0.02952998).format("%.2f");
+      }
     }
 
     tLDataLabel.setText(currentQNHString);
@@ -422,11 +427,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     if (
       currentHR != null &&
       currentHRLastUpdated != null &&
-      Time.now().compare(currentHRLastUpdated) < 60
+      now.compare(currentHRLastUpdated) < 60
     ) {
       currentHRString = currentHR.format("%d");
     }
-  
+
     bRDataLabel.setText(currentHRString);
   }
 
@@ -496,17 +501,15 @@ class TactixckfyView extends WatchUi.WatchFace {
   private function drawStatusIcons(dc as Dc) as Void {
     dc.setAntiAlias(true);
 
-    var deviceSettings = System.getDeviceSettings();
-
     if (bluetoothIconReference != null) {
-      if (deviceSettings.phoneConnected) {
+      if (systemSettings.phoneConnected) {
         var bluetoothIconBitmap =
           bluetoothIconReference.get() as BitmapResource;
         dc.drawBitmap2(20, 122, bluetoothIconBitmap, {});
       }
     }
     if (dndIconReference != null) {
-      if (deviceSettings.doNotDisturb) {
+      if (systemSettings.doNotDisturb) {
         var dndIconBitmap = dndIconReference.get() as BitmapResource;
         dc.drawBitmap2(227, 123, dndIconBitmap, {});
       }
@@ -882,7 +885,6 @@ class TactixckfyView extends WatchUi.WatchFace {
 
   private function drawMoonPhase(dc as Dc) as Void {
     if (_showWatchHands) {
-      var now = Time.now();
       if (
         currentMoonphase == null ||
         (moonphaseLastCalculated != null &&

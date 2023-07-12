@@ -28,4 +28,8 @@
     <string id="WindSpeedUnitMs">Meters per Second (m/s)</string>
     <string id="WindSpeedUnitKts">Knots (kts)</string>
 
+    <string id="DimOnSleep">Dim the screen on Sleep</string>
+    <string id="True">True</string>
+    <string id="False">False</string>
+
 </strings>

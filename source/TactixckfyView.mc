@@ -247,7 +247,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     drawMoonPhase(dc);
 
     // Overlay a Rect to dim the screen
-    if (!_isAwake && (Properties.getValue("DimOnSleep") as Number) == 1) {
+    if (!_isAwake && (Properties.getValue("DimOnSleep") as Number) == 1 && _showWatchHands) {
       dc.setFill(Graphics.createColor(64, 0, 0, 0));
       dc.setBlendMode(Graphics.BLEND_MODE_MULTIPLY);
       dc.fillRectangle(0, 0, 260, 260);

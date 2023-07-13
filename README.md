@@ -1,6 +1,6 @@
 # Tactix-Fenix
 
-![cover image](docs/hero-02.png)
+![cover image](docs/hero-03.png)
 
 Tactix and TactixFace inspired watch face for the Fenix 7. Element placement are calculated by pixels so it's only tested to work with 260x260 screens.
 

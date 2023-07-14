@@ -6,5 +6,6 @@
     <property id="SubHeadingColor" type="number">0xAAAAAA</property>
     <property id="WindSpeedUnit" type="number">0</property>
     <property id="DimOnSleep" type="number">0</property>
+    <property id="BodyBattSource" type="number">23</property>
 
 </properties>

@@ -57,4 +57,11 @@
             <listEntry value="1">@Strings.True</listEntry>
         </settingConfig>
     </setting>
+
+    <setting propertyKey="@Properties.BodyBattSource" title="@Strings.BodyBattSource">
+        <settingConfig type="list">
+            <listEntry value="21">@Strings.RecoveryTime</listEntry>
+            <listEntry value="23">@Strings.BodyBattery</listEntry>
+        </settingConfig>
+    </setting>
 </settings>

@@ -49,6 +49,9 @@ class TactixckfyView extends WatchUi.WatchFace {
   private var nextSunset as Number?;
   private var nextSunsetComplicationId as Complications.Id?;
 
+  private var recoveryTime as Number?;
+  private var recoveryTimeComplicationId as Complications.Id?;
+
   private var currentWeather as CurrentConditions?;
 
   // Layout References
@@ -538,9 +541,9 @@ class TactixckfyView extends WatchUi.WatchFace {
     if (battery < 0.3) {
       dc.setColor(0xaa0000, Graphics.COLOR_BLACK);
     } else if (battery < 0.5) {
-      dc.setColor(0xffaa00, Graphics.COLOR_BLACK);
+      dc.setColor(0xaaaa00, Graphics.COLOR_BLACK);
     } else {
-      dc.setColor(0x005500, Graphics.COLOR_BLACK);
+      dc.setColor(0x00aa00, Graphics.COLOR_BLACK);
     }
     dc.drawArc(
       _screenCenterPoint[0],
@@ -551,12 +554,25 @@ class TactixckfyView extends WatchUi.WatchFace {
       270 - 180 * battery
     );
 
-    if (currentBodyBatt != null) {
-      var bodyBatt = currentBodyBatt.toFloat() / 100.0;
+    var bodyBattSource = Properties.getValue("BodyBattSource") as Number;
+    var bodyBatt = null;
+
+    if (bodyBattSource == Complications.COMPLICATION_TYPE_RECOVERY_TIME && recoveryTime != null) {
+      // recoveryTime is in minutes
+      bodyBatt = (recoveryTime.toFloat() / 60.0 / 24.0);
+      if (bodyBatt > 1.0) {
+        bodyBatt = 1.0;
+      }
+      bodyBatt = 1.0 - bodyBatt;
+    } else if (currentBodyBatt != null) {
+      bodyBatt = currentBodyBatt.toFloat() / 100.0;
+    }
+
+    if (bodyBatt != null) {
       if (bodyBatt < 0.3) {
         dc.setColor(0xaa0000, Graphics.COLOR_BLACK);
       } else if (bodyBatt < 0.5) {
-        dc.setColor(0x00aaaa, Graphics.COLOR_BLACK);
+        dc.setColor(0x0055aa, Graphics.COLOR_BLACK);
       } else {
         dc.setColor(0x0000aa, Graphics.COLOR_BLACK);
       }
@@ -621,6 +637,7 @@ class TactixckfyView extends WatchUi.WatchFace {
       var minuteHandAngle = (clockTime.min / 60.0) * Math.PI * 2;
 
       var hourHandPoints = getHourHandPoints(_screenCenterPoint, hourHandAngle);
+      var hourHandPoints2 = getHourHandPoints2(_screenCenterPoint, hourHandAngle);
 
       var minuteHandPoints = getMinuteHandPoints(
         _screenCenterPoint,
@@ -631,6 +648,7 @@ class TactixckfyView extends WatchUi.WatchFace {
       dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
       dc.fillPolygon(hourHandPoints);
       dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+      dc.fillPolygon(hourHandPoints2);
       drawPolygon(dc, hourHandPoints);
 
       dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
@@ -713,10 +731,25 @@ class TactixckfyView extends WatchUi.WatchFace {
     var coords =
       [
         [-(12 / 2), -35] as Array<Number>,
-        [-(22 / 2), -65] as Array<Number>,
-        [0, -95] as Array<Number>,
-        [22 / 2, -65] as Array<Number>,
+        [-(22 / 2), -55] as Array<Number>,
+        [0, -100] as Array<Number>,
+        [22 / 2, -55] as Array<Number>,
         [12 / 2, -35] as Array<Number>,
+      ] as Array<Array<Number> >;
+
+    return rotatePoints(centerPoint, coords, angle);
+  }
+
+  private function getHourHandPoints2(
+    centerPoint as Array<Number>,
+    angle as Float
+  ) as Array<Array<Float> > {
+    // Map out the coordinates of the watch hand pointing down
+    var coords =
+      [
+        [-(10 / 2), -35] as Array<Number>,
+        [0, -70] as Array<Number>,
+        [10 / 2, -35] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);
@@ -915,7 +948,6 @@ class TactixckfyView extends WatchUi.WatchFace {
   }
 
   private function checkComplications() as Void {
-    System.println("Checking complications...");
     var iter = Complications.getComplications();
 
     var complication = iter.next();
@@ -958,6 +990,10 @@ class TactixckfyView extends WatchUi.WatchFace {
         nextSunsetComplicationId = complication.complicationId;
       }
 
+      if (complication.getType() == Complications.COMPLICATION_TYPE_RECOVERY_TIME) {
+        recoveryTimeComplicationId = complication.complicationId;
+      }
+
       complication = iter.next();
     }
   }
@@ -993,6 +1029,10 @@ class TactixckfyView extends WatchUi.WatchFace {
 
     if (nextSunsetComplicationId != null) {
       Complications.subscribeToUpdates(nextSunsetComplicationId);
+    }
+
+    if (recoveryTimeComplicationId != null) {
+      Complications.subscribeToUpdates(recoveryTimeComplicationId);
     }
   }
 
@@ -1045,6 +1085,12 @@ class TactixckfyView extends WatchUi.WatchFace {
     if (complicationId == nextSunsetComplicationId) {
       if (dataValue != null) {
         nextSunset = dataValue as Lang.Number;
+      }
+    }
+
+    if (complicationId == recoveryTimeComplicationId) {
+      if (dataValue != null) {
+        recoveryTime = dataValue as Lang.Number;
       }
     }
   }

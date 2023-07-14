@@ -32,4 +32,8 @@
     <string id="True">True</string>
     <string id="False">False</string>
 
+    <string id="BodyBattSource">Body Battery Source</string>
+    <string id="RecoveryTime">Recovery Time</string>
+    <string id="BodyBattery">Body Battery</string>
+
 </strings>

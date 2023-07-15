@@ -250,7 +250,11 @@ class TactixckfyView extends WatchUi.WatchFace {
     drawMoonPhase(dc);
 
     // Overlay a Rect to dim the screen
-    if (!_isAwake && (Properties.getValue("DimOnSleep") as Number) == 1 && _showWatchHands) {
+    if (
+      !_isAwake &&
+      (Properties.getValue("DimOnSleep") as Number) == 1 &&
+      _showWatchHands
+    ) {
       dc.setFill(Graphics.createColor(64, 0, 0, 0));
       dc.setBlendMode(Graphics.BLEND_MODE_MULTIPLY);
       dc.fillRectangle(0, 0, 260, 260);
@@ -369,7 +373,7 @@ class TactixckfyView extends WatchUi.WatchFace {
       if (systemSettings.elevationUnits == System.UNIT_METRIC) {
         currentQNHString = (currentQNH / 100).format("%.1f");
       } else {
-        currentQNHString = (currentQNH / 100 * 0.02952998).format("%.2f");
+        currentQNHString = ((currentQNH / 100) * 0.02952998).format("%.2f");
       }
     }
 
@@ -557,9 +561,12 @@ class TactixckfyView extends WatchUi.WatchFace {
     var bodyBattSource = Properties.getValue("BodyBattSource") as Number;
     var bodyBatt = null;
 
-    if (bodyBattSource == Complications.COMPLICATION_TYPE_RECOVERY_TIME && recoveryTime != null) {
+    if (
+      bodyBattSource == Complications.COMPLICATION_TYPE_RECOVERY_TIME &&
+      recoveryTime != null
+    ) {
       // recoveryTime is in minutes
-      bodyBatt = (recoveryTime.toFloat() / 60.0 / 24.0);
+      bodyBatt = recoveryTime.toFloat() / 60.0 / 24.0;
       if (bodyBatt > 1.0) {
         bodyBatt = 1.0;
       }
@@ -637,7 +644,10 @@ class TactixckfyView extends WatchUi.WatchFace {
       var minuteHandAngle = (clockTime.min / 60.0) * Math.PI * 2;
 
       var hourHandPoints = getHourHandPoints(_screenCenterPoint, hourHandAngle);
-      var hourHandPoints2 = getHourHandPoints2(_screenCenterPoint, hourHandAngle);
+      var hourHandPoints2 = getHourHandPoints2(
+        _screenCenterPoint,
+        hourHandAngle
+      );
 
       var minuteHandPoints = getMinuteHandPoints(
         _screenCenterPoint,
@@ -648,7 +658,12 @@ class TactixckfyView extends WatchUi.WatchFace {
       dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
       dc.fillPolygon(hourHandPoints);
       dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-      dc.fillPolygon(hourHandPoints2);
+      dc.drawLine(
+        hourHandPoints2[0][0],
+        hourHandPoints2[0][1],
+        hourHandPoints2[1][0],
+        hourHandPoints2[1][1]
+      );
       drawPolygon(dc, hourHandPoints);
 
       dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
@@ -746,11 +761,8 @@ class TactixckfyView extends WatchUi.WatchFace {
   ) as Array<Array<Float> > {
     // Map out the coordinates of the watch hand pointing down
     var coords =
-      [
-        [-(10 / 2), -35] as Array<Number>,
-        [0, -70] as Array<Number>,
-        [10 / 2, -35] as Array<Number>,
-      ] as Array<Array<Number> >;
+      [[0, -35] as Array<Number>, [0, -55] as Array<Number>] as
+      Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);
   }
@@ -990,7 +1002,9 @@ class TactixckfyView extends WatchUi.WatchFace {
         nextSunsetComplicationId = complication.complicationId;
       }
 
-      if (complication.getType() == Complications.COMPLICATION_TYPE_RECOVERY_TIME) {
+      if (
+        complication.getType() == Complications.COMPLICATION_TYPE_RECOVERY_TIME
+      ) {
         recoveryTimeComplicationId = complication.complicationId;
       }
 

@@ -470,39 +470,54 @@ class TactixckfyView extends WatchUi.WatchFace {
   //! @param dc Device context
   private function drawTickMarks(dc as Dc) as Void {
     dc.setAntiAlias(true);
-    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+    dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_BLACK);
+
+    var triangleMark = false;
 
     var width = dc.getWidth();
 
-    var outerRad = width / 2;
-
     for (var i = 0; i <= 29; i++) {
       var angle = (i * 6 * Math.PI) / 180;
+      var outerRad = width / 2;
       var innerRad = outerRad - smallHashLength;
-      if (i % 5 == 0) {
-        innerRad = outerRad - bigHashLength;
-        dc.setPenWidth(3);
+
+      if (i % 10 == 0) {
+        triangleMark = true;
       } else {
-        dc.setPenWidth(1);
+        triangleMark = false;
       }
-      // Partially unrolled loop to draw two tickmarks
-      var sY = outerRad + innerRad * Math.sin(angle);
-      var eY = outerRad + outerRad * Math.sin(angle);
-      var sX = outerRad + innerRad * Math.cos(angle);
-      var eX = outerRad + outerRad * Math.cos(angle);
-      dc.drawLine(sX, sY, eX, eY);
-      dc.drawLine(260 - sX, 260 - sY, 260 - eX, 260 - eY);
+
+      if (triangleMark) {
+        dc.fillPolygon(getTriangleTick(_screenCenterPoint, angle));
+        dc.fillPolygon(getTriangleTick(_screenCenterPoint, Math.PI + angle));
+      } else {
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+
+        if (i % 5 == 0) {
+          innerRad = outerRad - bigHashLength;
+          dc.setPenWidth(3);
+        } else {
+          dc.setPenWidth(1);
+        }
+
+        // Partially unrolled loop to draw two tickmarks
+        var sY = outerRad + innerRad * Math.cos(angle);
+        var eY = outerRad + outerRad * Math.cos(angle);
+        var sX = outerRad + innerRad * Math.sin(angle);
+        var eX = outerRad + outerRad * Math.sin(angle);
+        dc.drawLine(sX, sY, eX, eY);
+        dc.drawLine(260 - sX, 260 - sY, 260 - eX, 260 - eY);
+      }
     }
   }
 
   private function drawDividers(dc as Dc) as Void {
     dc.setPenWidth(1);
     dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
-    dc.drawLine(40, 75, 220, 75);
-    dc.drawLine(40, 185, 220, 185);
-    dc.drawLine(130, 30, 130, 75);
-    dc.drawLine(130, 30, 130, 75);
-    dc.drawLine(130, 185, 130, 230);
+    dc.drawLine(35, 72, 225, 72);
+    dc.drawLine(35, 188, 225, 188);
+    dc.drawLine(130, 30, 130, 72);
+    dc.drawLine(130, 188, 130, 230);
   }
 
   private function drawStatusIcons(dc as Dc) as Void {
@@ -523,13 +538,13 @@ class TactixckfyView extends WatchUi.WatchFace {
     }
     if (rainIconReference != null) {
       var rainIconBitmap = rainIconReference.get() as BitmapResource;
-      dc.drawBitmap2(203, 163, rainIconBitmap, {
+      dc.drawBitmap2(203, 165, rainIconBitmap, {
         :tintColor => Properties.getValue("SubHeadingColor") as Number,
       });
     }
     if (spo2IconReference != null) {
       var spo2IconBitmap = spo2IconReference.get() as BitmapResource;
-      dc.drawBitmap2(42, 162, spo2IconBitmap, {
+      dc.drawBitmap2(42, 164, spo2IconBitmap, {
         :tintColor => Properties.getValue("SubHeadingColor") as Number,
       });
     }
@@ -644,8 +659,9 @@ class TactixckfyView extends WatchUi.WatchFace {
       var minuteHandAngle = (clockTime.min / 60.0) * Math.PI * 2;
 
       var hourHandPoints = getHourHandPoints(_screenCenterPoint, hourHandAngle);
-      var hourHandPoints2 = getHourHandPoints2(
+      var hourHandLinePoints = rotatePoints(
         _screenCenterPoint,
+        [[0, -35] as Array<Number>, [0, -55] as Array<Number>],
         hourHandAngle
       );
 
@@ -659,10 +675,10 @@ class TactixckfyView extends WatchUi.WatchFace {
       dc.fillPolygon(hourHandPoints);
       dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
       dc.drawLine(
-        hourHandPoints2[0][0],
-        hourHandPoints2[0][1],
-        hourHandPoints2[1][0],
-        hourHandPoints2[1][1]
+        hourHandLinePoints[0][0],
+        hourHandLinePoints[0][1],
+        hourHandLinePoints[1][0],
+        hourHandLinePoints[1][1]
       );
       drawPolygon(dc, hourHandPoints);
 
@@ -673,7 +689,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     }
   }
 
-  private function drawPolygon(dc as Dc, points as Array<Array<Float> >) {
+  private function drawPolygon(dc as Dc, points as Array<Array<Float> >) as Void {
     dc.setAntiAlias(true);
     var i;
     for (i = 1; i < points.size(); i++) {
@@ -755,18 +771,6 @@ class TactixckfyView extends WatchUi.WatchFace {
     return rotatePoints(centerPoint, coords, angle);
   }
 
-  private function getHourHandPoints2(
-    centerPoint as Array<Number>,
-    angle as Float
-  ) as Array<Array<Float> > {
-    // Map out the coordinates of the watch hand pointing down
-    var coords =
-      [[0, -35] as Array<Number>, [0, -55] as Array<Number>] as
-      Array<Array<Number> >;
-
-    return rotatePoints(centerPoint, coords, angle);
-  }
-
   private function getMinuteHandPoints(
     centerPoint as Array<Number>,
     angle as Float
@@ -796,6 +800,20 @@ class TactixckfyView extends WatchUi.WatchFace {
         [0, -130] as Array<Number>,
         [4 / 2, -125] as Array<Number>,
         [4 / 2, -30] as Array<Number>,
+      ] as Array<Array<Number> >;
+
+    return rotatePoints(centerPoint, coords, angle);
+  }
+
+  private function getTriangleTick(
+    centerPoint as Array<Number>,
+    angle as Float
+  ) as Array<Array<Float> > {
+    var coords =
+      [
+        [-(10 / 2), -130] as Array<Number>,
+        [0, -120] as Array<Number>,
+        [10 / 2, -130] as Array<Number>,
       ] as Array<Array<Number> >;
 
     return rotatePoints(centerPoint, coords, angle);
@@ -834,7 +852,7 @@ class TactixckfyView extends WatchUi.WatchFace {
     centerPoint as Array<Number>,
     points as Array<Array<Number> >,
     angle as Float
-  ) {
+  ) as Array<Array<Float> > {
     var result = new Array<Array<Float> >[points.size()];
     var cos = Math.cos(angle);
     var sin = Math.sin(angle);

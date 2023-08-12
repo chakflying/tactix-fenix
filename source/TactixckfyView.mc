@@ -246,8 +246,6 @@ class TactixckfyView extends WatchUi.WatchFace {
     drawStatusArcs(dc);
     drawDividers(dc);
     drawStatusIcons(dc);
-    drawSunEventsMarkers(dc);
-    drawMoonPhase(dc);
 
     // Overlay a Rect to dim the screen
     if (
@@ -262,6 +260,9 @@ class TactixckfyView extends WatchUi.WatchFace {
     }
 
     drawTickMarks(dc);
+
+    drawSunEventsMarkers(dc);
+    drawMoonPhase(dc);
 
     drawWatchHands(dc);
   }
